@@ -126,13 +126,18 @@ function acefit!(model::ACE1Model, raw_data;
        model.potential = IP_com
    end
 
-   if export_lammps != nothing 
+   if haskey(result, "POPS_posterior")
+      co_coeffs = result["POPS_posterior"]
+      IP_com = ACE1.committee_potential(model.basis, coeffs, co_coeffs)
+      (model.Vref != nothing) && (IP_com = JuLIP.MLIPs.SumIP(model.Vref, IP_com))
+      model.potential = IP_com
+   end
+   if export_lammps != nothing
       export2lammps(export_lammps, model)
    end
-   if export_json != nothing 
+   if export_json != nothing
       export2json(export_json, model)
    end
-
    return model 
 end
 
